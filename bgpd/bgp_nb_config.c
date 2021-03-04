@@ -2141,6 +2141,9 @@ int bgp_neighbors_neighbor_create(struct nb_cb_create_args *args)
 	struct bgp *bgp;
 	const char *peer_str;
 	union sockunion su;
+	int as_type = AS_UNSPECIFIED;
+	as_t as = 0;
+	int ret;
 
 	switch (args->event) {
 	case NB_EV_VALIDATE:
@@ -2177,6 +2180,11 @@ int bgp_neighbors_neighbor_create(struct nb_cb_create_args *args)
 				"Can not configure the local system as neighbor");
 			return NB_ERR_INCONSISTENCY;
 		}
+		ret = peer_remote_as(bgp, &su, NULL, &as, as_type, AFI_IP,
+				SAFI_UNICAST);
+		if (bgp_nb_errmsg_return(args->errmsg, args->errmsg_len, ret)
+				< 0)
+			return NB_ERR_INCONSISTENCY;
 		break;
 	}
 
